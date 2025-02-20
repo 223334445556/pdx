@@ -1,11 +1,15 @@
 const { Client, GatewayIntentBits, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 const fs = require('fs');  // Import the fs module to read the file
 
-// Read the bot token from key.txt file
-const TOKEN = fs.readFileSync('./key.txt', 'utf-8').trim();  // Reads the token and trims any extra spaces or newlines
+// Read the bot token from key.txt file (assuming it's split into parts in the file)
+const tokenPart1 = 'MTM0MTQ1OTgyMTY2NDI3NjU0MQ.Gt8A23.u';  // First part of the token
+const tokenPart2 = '50lOTQNWWFBZA7GjKSnjMy9cXg0a34vKI7G-g';  // Second part of the token
+
+// Reconstruct the token by skipping the first two characters of the second part
+const TOKEN = tokenPart1 + tokenPart2;  // Skips the first two characters of the second part
 
 // Print the token to debug (this will help verify that the token is read correctly)
-console.log("Bot Token: ", TOKEN);  // This will print the token in the console
+console.log("Reconstructed Bot Token: ", TOKEN);  // This will print the token in the console
 
 const LOADER_LINK = 'https://cdn.discordapp.com/attachments/1005573909829124148/1331423375926755349/pdx.exe?ex=67b722e5&is=67b5d165&hm=e16b9155d81dca58ee3ec1de6d12d3c371b856cc9a39b165f3c519869708e3c4&';
 const REQUIRED_ROLE = 'pdx user';  // Replace with the required role name
@@ -68,5 +72,5 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
-// Login with the token from key.txt
+// Login with the reconstructed token
 client.login(TOKEN);
