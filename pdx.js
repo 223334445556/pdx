@@ -43,10 +43,29 @@ client.once('ready', async () => {
                 .setRequired(true)
         );
 
+    // Register the /post command
+    const postCommand = new SlashCommandBuilder()
+        .setName('post')
+        .setDescription('Post a message to the appropriate channel')
+        .addStringOption(option =>
+            option.setName('channel')
+                .setDescription('Choose a channel to post (user-announcements or updates)')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'user-announcements', value: 'user-announcements' },
+                    { name: 'updates', value: 'updates' }
+                )
+        )
+        .addStringOption(option =>
+            option.setName('body')
+                .setDescription('The content to post')
+                .setRequired(true)
+        );
+
     try {
         // Register the slash commands
-        await client.application.commands.set([loaderCommand.toJSON(), hwidCommand.toJSON()]);
-        console.log('Slash commands "/loader" and "/hwid" have been registered.');
+        await client.application.commands.set([loaderCommand.toJSON(), hwidCommand.toJSON(), postCommand.toJSON()]);
+        console.log('Slash commands "/loader", "/hwid", and "/post" have been registered.');
     } catch (error) {
         console.error('Error registering commands:', error);
     }
@@ -121,7 +140,7 @@ client.on('interactionCreate', async (interaction) => {
         const row = new ActionRowBuilder().addComponents(acceptButton, denyButton);
 
         // Send the embed with buttons for admins
-        const salesChannelId = '1342191970843492403'; // Replace with actual channel ID
+        const salesChannelId = '1342183336092893194'; // Replace with actual channel ID
         const salesChannel = interaction.guild.channels.cache.get(salesChannelId);
 
         if (salesChannel) {
@@ -134,6 +153,35 @@ client.on('interactionCreate', async (interaction) => {
         } else {
             console.log('Sales Channel not found');
             await interaction.reply({ content: 'Sales channel not found.', ephemeral: true });
+        }
+    }
+
+    // Handle /post command
+    if (interaction.commandName === 'post') {
+        // Check if the user is an admin
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true });
+        }
+
+        const channelChoice = interaction.options.getString('channel');
+        const body = interaction.options.getString('body');
+
+        // Define the channel IDs based on the user's choice
+        let targetChannelId;
+        if (channelChoice === 'user-announcements') {
+            targetChannelId = '1330903013958619168';  // Channel ID for user-announcements
+        } else if (channelChoice === 'updates') {
+            targetChannelId = '1322760551201505372';  // Channel ID for updates
+        }
+
+        // Fetch the target channel
+        const targetChannel = interaction.guild.channels.cache.get(targetChannelId);
+        
+        if (targetChannel) {
+            await targetChannel.send(body);  // Send the post content to the chosen channel
+            await interaction.reply({ content: 'Your message has been posted successfully!', ephemeral: true });
+        } else {
+            await interaction.reply({ content: 'The selected channel was not found.', ephemeral: true });
         }
     }
 });
@@ -164,9 +212,6 @@ client.on('interactionCreate', async (interaction) => {
             await message.reply({ content: `hwid reset for ${user.tag} has been denied by <@${admin.id}>.`, ephemeral: true });
             await user.send(`your hwid reset for valorant has been denied by <@${admin.id}>. open a ticket for more information.`);
         }
-        
-        
-        
 
         // Disable buttons after being clicked by rebuilding the row with disabled buttons
         const row = new ActionRowBuilder().addComponents(
@@ -187,7 +232,6 @@ client.on('interactionCreate', async (interaction) => {
         await message.edit({ components: [row] });
     }
 });
-
 
 // Login with the reconstructed token
 client.login(TOKEN);
