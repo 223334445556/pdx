@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits, SlashCommandBuilder, PermissionsBitField } = require('discord.js');
 
-const TOKEN = 'MTM0MTQ1OTgyMTY2NDI3NjU0MQ.GTkT9p.yuLAXOFPzmeTvEEVXR8h2flBCvrFzLoOrNCado';  // Replace with your bot token
+const TOKEN = 'MTM0MTQ1OTgyMTY2NDI3NjU0MQ.G1BwwH.zQ__8b3JXt56Qdi0RArIi50jIUybe56GsVcyQQ';  // Replace with your bot token
 const LOADER_LINK = 'https://cdn.discordapp.com/attachments/1005573909829124148/1331423375926755349/pdx.exe?ex=67b722e5&is=67b5d165&hm=e16b9155d81dca58ee3ec1de6d12d3c371b856cc9a39b165f3c519869708e3c4&';
 const REQUIRED_ROLE = 'pdx user';  // Replace with the required role name
 
