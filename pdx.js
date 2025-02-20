@@ -136,7 +136,7 @@ client.on('interactionCreate', async (interaction) => {
         const row = new ActionRowBuilder().addComponents(acceptButton, denyButton);
 
         // Send the embed with buttons for admins
-        const salesChannelId = '1342183336092893194'; // Replace with actual channel ID
+        const salesChannelId = '1342191970843492403'; // Replace with actual channel ID
         const salesChannel = interaction.guild.channels.cache.get(salesChannelId);
 
         if (salesChannel) {
