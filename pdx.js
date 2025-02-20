@@ -46,15 +46,11 @@ client.once('ready', async () => {
     // Register the /post command
     const postCommand = new SlashCommandBuilder()
         .setName('post')
-        .setDescription('Post a message to the appropriate channel')
+        .setDescription('Post a message to a specific channel')
         .addStringOption(option =>
-            option.setName('channel')
-                .setDescription('Choose a channel to post (user-announcements or updates)')
+            option.setName('channel_id')
+                .setDescription('Provide the channel ID where the message will be posted')
                 .setRequired(true)
-                .addChoices(
-                    { name: 'user-announcements', value: 'user-announcements' },
-                    { name: 'updates', value: 'updates' }
-                )
         )
         .addStringOption(option =>
             option.setName('body')
@@ -163,25 +159,17 @@ client.on('interactionCreate', async (interaction) => {
             return interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true });
         }
 
-        const channelChoice = interaction.options.getString('channel');
+        const channelId = interaction.options.getString('channel_id');
         const body = interaction.options.getString('body');
 
-        // Define the channel IDs based on the user's choice
-        let targetChannelId;
-        if (channelChoice === 'user-announcements') {
-            targetChannelId = '1330903013958619168';  // Channel ID for user-announcements
-        } else if (channelChoice === 'updates') {
-            targetChannelId = '1322760551201505372';  // Channel ID for updates
-        }
-
         // Fetch the target channel
-        const targetChannel = interaction.guild.channels.cache.get(targetChannelId);
+        const targetChannel = interaction.guild.channels.cache.get(channelId);
         
         if (targetChannel) {
-            await targetChannel.send(body);  // Send the post content to the chosen channel
+            await targetChannel.send(body);  // Send the post content to the specified channel
             await interaction.reply({ content: 'Your message has been posted successfully!', ephemeral: true });
         } else {
-            await interaction.reply({ content: 'The selected channel was not found.', ephemeral: true });
+            await interaction.reply({ content: 'The specified channel was not found.', ephemeral: true });
         }
     }
 });
