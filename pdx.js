@@ -12,7 +12,7 @@ const TOKEN = tokenPart1 + tokenPart2;  // Skips the first two characters of the
 // Print the token to debug (this will help verify that the token is read correctly)
 console.log("Reconstructed Bot Token: ", TOKEN);  // This will print the token in the console
 
-const LOADER_LINK = 'https://cdn.discordapp.com/attachments/1005573909829124148/1331423375926755349/pdx.exe?ex=67b91d25&is=67b7cba5&hm=760eb832e78b800e95c60ba6c6c7d39e27995562a300010a6a97104f976f75f3&';
+const LOADER_LINK = 'https://cdn.discordapp.com/attachments/1342191970843492403/1343695246156103721/pdx.exe?ex=67be3537&is=67bce3b7&hm=1f81561a9f845f5f2959ff48763f7b0675590e0bd3a072323cf40cf7e59c8986&';
 const REQUIRED_ROLE = 'pdx user';  // Replace with the required role name
 
 const client = new Client({
