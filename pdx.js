@@ -64,7 +64,7 @@ client.on('interactionCreate', async (interaction) => {
             ephemeral: true
         });
 
-        const filePath = path.join(__dirname, 'pdxbot', 'pdx.exe');
+        const filePath = path.join(__dirname, 'pdx.exe');
 
         try {
             await interaction.editReply({
