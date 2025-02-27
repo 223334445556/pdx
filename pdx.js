@@ -9,6 +9,8 @@ const tokenPart2 = '50lOTQNWWFBZA7GjKSnjMy9cXg0a34vKI7G-g';
 const TOKEN = tokenPart1 + tokenPart2;
 
 const REQUIRED_ROLE = 'pdx user';
+const LOG_CHANNEL_ID = '1342191970843492403';  // Log channel ID
+const SERVER_ID = '1322652117952892938';  // Server ID
 
 const client = new Client({
     intents: [
@@ -38,8 +40,26 @@ client.once('ready', async () => {
                     { name: 'Month', value: 'month' }
                 ));
 
+    const roleCommand = new SlashCommandBuilder()
+        .setName('role')
+        .setDescription('Assign a role for a specified period of time')
+        .addUserOption(option => 
+            option.setName('user')
+                .setDescription('User to assign role')
+                .setRequired(true)
+        )
+        .addStringOption(option => 
+            option.setName('time')
+                .setDescription('Time period (minute, week, month)')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'minute', value: 'minute' },
+                    { name: 'week', value: 'week' },
+                    { name: 'month', value: 'month' }
+                ));
+
     try {
-        await client.application.commands.set([loaderCommand.toJSON(), squareCommand.toJSON()]);
+        await client.application.commands.set([loaderCommand.toJSON(), squareCommand.toJSON(), roleCommand.toJSON()]);
         console.log('bot online & ready');
     } catch (err) {
         console.error('failed:', err);
@@ -94,7 +114,45 @@ client.on('interactionCreate', async (interaction) => {
         }
     
         await interaction.reply({ content: link });
-    }    
+    }
+
+    if (interaction.commandName === 'role') {
+        const isAdmin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
+
+        if (!isAdmin) {
+            return interaction.reply({ content: "You do not have permission to use this command.", ephemeral: true });
+        }
+
+        const user = interaction.options.getUser('user');
+        const time = interaction.options.getString('time');
+
+        const role = interaction.guild.roles.cache.find(role => role.name === REQUIRED_ROLE);
+        if (!role) return interaction.reply({ content: 'Role not found!', ephemeral: true });
+
+        let duration;
+        if (time === 'minute') {
+            duration = 1;  // 1 minute
+        } else if (time === 'week') {
+            duration = 7 * 24 * 60;  // 1 week in minutes
+        } else if (time === 'month') {
+            duration = 30 * 24 * 60;  // 1 month in minutes
+        }
+
+        // Add role
+        const member = await interaction.guild.members.fetch(user.id);
+        await member.roles.add(role);
+        interaction.reply({ content: `${user.tag} has been assigned the role for ${time}.`, ephemeral: true });
+
+        // Log the action
+        const logChannel = await interaction.guild.channels.fetch(LOG_CHANNEL_ID);
+        logChannel.send(`${user.tag} has been given the "${REQUIRED_ROLE}" role for ${time} by ${interaction.user.tag}.`);
+
+        // Remove role after the specified duration
+        setTimeout(async () => {
+            await member.roles.remove(role);
+            logChannel.send(`${user.tag}'s "${REQUIRED_ROLE}" role has been removed after ${time}.`);
+        }, duration * 60000);  // Convert duration to milliseconds
+    }
 });
 
 client.login(TOKEN);
