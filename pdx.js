@@ -26,21 +26,20 @@ client.once('ready', async () => {
         .setName('loader')
         .setDescription('pdx loader download');
 
-    const hwidCommand = new SlashCommandBuilder()
-        .setName('hwid')
-        .setDescription('request a HWID reset')
-        .addStringOption(option => option.setName('key').setDescription('provide your license key').setRequired(true))
-        .addStringOption(option => option.setName('reason').setDescription('provide your reason for the reset').setRequired(true))
-        .addStringOption(option => option.setName('proof').setDescription('provide proof / screenshot links').setRequired(true));
-
-    const postCommand = new SlashCommandBuilder()
-        .setName('post')
-        .setDescription('Post a message to a specific channel')
-        .addStringOption(option => option.setName('channel_id').setDescription('Provide the channel ID').setRequired(true))
-        .addStringOption(option => option.setName('body').setDescription('The content to post').setRequired(true));
+    const squareCommand = new SlashCommandBuilder()
+        .setName('square')
+        .setDescription('Get a specific link based on the selected period')
+        .addStringOption(option =>
+            option.setName('period')
+                .setDescription('Choose the period')
+                .setRequired(true)
+                .addChoices(
+                    { name: 'Week', value: 'week' },
+                    { name: 'Month', value: 'month' }
+                ));
 
     try {
-        await client.application.commands.set([loaderCommand.toJSON()]);
+        await client.application.commands.set([loaderCommand.toJSON(), squareCommand.toJSON()]);
         console.log('bot online & ready');
     } catch (err) {
         console.error('failed:', err);
@@ -73,9 +72,29 @@ client.on('interactionCreate', async (interaction) => {
                 ephemeral: true
             });
         } catch (error) {
-            console.error('failed to upload loader', error);
-            await interaction.editReply({ content: 'failed to upload loader', ephemeral: true });
+            console.error('failed to generate loader', error);
+            await interaction.editReply({ content: 'failed to generate loader', ephemeral: true });
         }
     }
-}),
+
+    if (interaction.commandName === 'square') {
+        const isAdmin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
+    
+        if (!isAdmin) {
+            return interaction.reply({ content: "You do not have permission to use this command.", ephemeral: true });
+        }
+    
+        const period = interaction.options.getString('period');
+    
+        let link = '';
+        if (period === 'week') {
+            link = 'https://square.link/u/ZpgQHx1m';
+        } else if (period === 'month') {
+            link = 'https://square.link/u/Lnt6sOgD';
+        }
+    
+        await interaction.reply({ content: link });
+    }    
+});
+
 client.login(TOKEN);
